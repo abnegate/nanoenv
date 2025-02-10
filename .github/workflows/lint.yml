@@ -60,13 +60,26 @@ jobs:
             libpq-dev \
             libhiredis-dev \
             libbrotli-dev
-          git clone --depth 1 --branch ${DROGON_VERSION} https://github.com/drogonframework/drogon && \
-          cd drogon && \
-          git submodule update --init && \
-          mkdir build && \
-          cd build && \
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && \
-          ninja && ninja install
+
+      - name: Cache Drogon Build
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/lib/cmake/Drogon
+          key: drogon-${{ env.DROGON_VERSION }}-${{ runner.os }}
+          restore-keys: |
+            drogon-${{ env.DROGON_VERSION }}-
+
+      - name: Build Drogon (if not cached)
+        run: |
+          if [ ! -d "/usr/local/lib/cmake/Drogon" ]; then
+            git clone --depth 1 --branch ${DROGON_VERSION} https://github.com/drogonframework/drogon
+            cd drogon
+            git submodule update --init
+            mkdir build
+            cd build
+            cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+            ninja && sudo ninja install
+          fi
 
       - name: Cache CMake & ccache
         uses: actions/cache@v3
