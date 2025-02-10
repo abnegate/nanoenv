@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Dependencies
-        run: sudo apt-get install -y clang-tidy cmake ninja ccache
+        run: sudo apt-get install -y clang-tidy cmake ninja-build ccache
 
       - name: Cache CMake & ccache
         uses: actions/cache@v3
@@ -78,9 +78,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Upload Clang Reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: clang-reports
-          path: |
-            $GITHUB_WORKSPACE/clang-format-report.txt
-            $GITHUB_WORKSPACE/clang-tidy-report.txt
+          path: clang-*-report.txt
