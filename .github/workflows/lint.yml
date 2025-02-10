@@ -5,10 +5,13 @@ on:
     branches: [ main ]
   pull_request:
 
+env:
+  DROGON_VERSION: v1.9.9
+
 jobs:
   clang-format:
     name: Clang Format
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
@@ -17,15 +20,7 @@ jobs:
       - name: Install Latest Clang-Format
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget lsb-release
-          DISTRO=$(lsb_release -sc)
-          VERSION=$(wget -qO- "http://apt.llvm.org/${DISTRO}/dists/llvm-toolchain-${DISTRO}/main/binary-amd64/Packages" | grep -oP '(?<=Package: clang-format-)[0-9]+' | sort -nr | head -n1)
-          echo "Detected Clang-Format version: ${VERSION}"
-          echo "deb http://apt.llvm.org/${DISTRO}/ llvm-toolchain-${DISTRO}-${VERSION} main" | sudo tee /etc/apt/sources.list.d/llvm.list
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo apt-get update
-          sudo apt-get install -y "clang-format-${VERSION}"
-          sudo ln -sf "/usr/bin/${VERSION}" "/usr/bin/clang-format"
+          sudo apt-get install -y clang-format
 
       - name: Run Clang-Format
         run: |
@@ -38,7 +33,7 @@ jobs:
 
   clang-tidy:
     name: Clang Tidy
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
@@ -53,10 +48,25 @@ jobs:
             ninja-build \
             ccache \
             build-essential \
-            libdrogon-dev \
             libsimdjson-dev \
             libjsoncpp-dev \
-            libsodium-dev
+            libsodium-dev \
+            git \
+            g++ \
+            uuid-dev \
+            openssl \
+            libssl-dev \
+            zlib1g-dev \
+            libpq-dev \
+            libhiredis-dev \
+            libbrotli-dev
+          git clone --depth 1 --branch ${DROGON_VERSION} https://github.com/drogonframework/drogon && \
+          cd drogon && \
+          git submodule update --init && \
+          mkdir build && \
+          cd build && \
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. && \
+          ninja && ninja install
 
       - name: Cache CMake & ccache
         uses: actions/cache@v3
@@ -90,7 +100,7 @@ jobs:
 
   upload-reports:
     name: Upload Clang Reports
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     needs: [ clang-format, clang-tidy ]
     if: always()
 
