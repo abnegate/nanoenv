@@ -11,10 +11,10 @@ add_library(nanoenv_containers STATIC)
 if (APPLE)
     target_sources(nanoenv_containers PRIVATE
         src/lima_backend.cpp)
-else()
+else ()
     target_sources(nanoenv_containers PRIVATE
         src/lxc_backend.cpp)
-endif()
+endif ()
 
 target_include_directories(nanoenv_containers PUBLIC
     include)

@@ -1,0 +1,86 @@
+name: Lint
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  clang-format:
+    name: Clang Format
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Clang-Format
+        run: sudo apt-get install -y clang-format
+
+      - name: Run Clang-Format
+        run: |
+          FILES=$(git ls-files '*.cpp' '*.h')
+          clang-format -n --Werror --style=file ${FILES} 2>&1 | tee clang-format-report.txt
+          if [ -s clang-format-report.txt ]; then
+            echo "Clang-Format found issues."
+            exit 1
+          fi
+
+  clang-tidy:
+    name: Clang Tidy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: sudo apt-get install -y clang-tidy cmake ninja ccache
+
+      - name: Cache CMake & ccache
+        uses: actions/cache@v3
+        with:
+          path: |
+            build
+            ~/.ccache
+          key: cmake-cache-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', '**/CMakeLists.txt') }}
+          restore-keys: |
+            cmake-cache-${{ runner.os }}-
+
+      - name: Configure CMake with Ninja
+        run: |
+          cmake -B build \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -G Ninja
+          ln -sf build/compile_commands.json compile_commands.json
+
+      - name: Run Clang-Tidy
+        run: |
+          FILES=$(git ls-files '*.cpp' '*.h')
+          run-clang-tidy -p build ${FILES} | tee clang-tidy-report.txt
+          if grep -q "warning:" clang-tidy-report.txt; then
+            echo "Clang-Tidy found issues."
+            exit 1
+          fi
+
+
+  upload-reports:
+    name: Upload Clang Reports
+    runs-on: ubuntu-latest
+    needs: [ clang-format, clang-tidy ]
+    if: always()
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Upload Clang Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: clang-reports
+          path: |
+            $GITHUB_WORKSPACE/clang-format-report.txt
+            $GITHUB_WORKSPACE/clang-tidy-report.txt
