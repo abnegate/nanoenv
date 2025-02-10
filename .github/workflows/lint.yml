@@ -8,7 +8,7 @@ on:
 jobs:
   clang-format:
     name: Clang Format
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Repository
@@ -38,7 +38,7 @@ jobs:
 
   clang-tidy:
     name: Clang Tidy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Repository
@@ -55,6 +55,7 @@ jobs:
             build-essential \
             libdrogon-dev \
             libsimdjson-dev \
+            libjsoncpp-dev \
             libsodium-dev
 
       - name: Cache CMake & ccache
@@ -89,7 +90,7 @@ jobs:
 
   upload-reports:
     name: Upload Clang Reports
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [ clang-format, clang-tidy ]
     if: always()
 
