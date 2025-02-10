@@ -1,0 +1,65 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+# Indentation & Formatting
+NamespaceIndentation: All
+IndentWidth: 4
+ContinuationIndentWidth: 4
+IndentCaseLabels: true
+AccessModifierOffset: -4
+ColumnLimit: 120
+MaxEmptyLinesToKeep: 1
+InsertNewlineAtEOF: true
+TabWidth: 4
+
+# Breaking
+BinPackArguments: false
+BinPackParameters: false
+PackConstructorInitializers: Never
+BreakConstructorInitializers: AfterColon
+BreakFunctionDefinitionParameters: true
+BreakBeforeBraces: Custom
+BreakAfterReturnType: None
+BreakArrays: true
+BreakTemplateDeclarations: Yes
+AlwaysBreakAfterDefinitionReturnType: None
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortEnumsOnASingleLine: false
+
+# Alignment
+AlignOperands: false
+AlignAfterOpenBracket: BlockIndent
+AlignTrailingComments: true
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignConsecutiveMacros: false
+
+# Spacing
+SpaceAfterCStyleCast: true
+SpaceAfterTemplateKeyword: true
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyParentheses: false
+SpacesInAngles: false
+SpacesInConditionalStatement: false
+SpacesInCStyleCastParentheses: false
+
+# Wrapping
+BraceWrapping:
+  AfterFunction: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+
+# Include Order & Sorting
+IncludeBlocks: Merge
+IncludeCategories:
+  - Regex: '^".*"'       # Project headers
+    Priority: 1
+  - Regex: '^<c[^/]+>'   # C std lib
+    Priority: 2
+  - Regex: '^<[^./]+>'   # C++ std lib
+    Priority: 4
+  - Regex: '^<.*>'       # Third-party libs
+    Priority: 5
