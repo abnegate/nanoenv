@@ -14,8 +14,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Clang-Format
-        run: sudo apt-get install -y clang-format
+      - name: Install Latest Clang-Format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget lsb-release
+          DISTRO=$(lsb_release -sc)
+          VERSION=$(wget -qO- "http://apt.llvm.org/${DISTRO}/dists/llvm-toolchain-${DISTRO}/main/binary-amd64/Packages" | grep -oP '(?<=Package: clang-format-)[0-9]+' | sort -nr | head -n1)
+          echo "Detected Clang-Format version: ${VERSION}"
+          echo "deb http://apt.llvm.org/${DISTRO}/ llvm-toolchain-${DISTRO}-${VERSION} main" | sudo tee /etc/apt/sources.list.d/llvm.list
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install -y "clang-format-${VERSION}"
+          sudo ln -sf "/usr/bin/${VERSION}" "/usr/bin/clang-format"
 
       - name: Run Clang-Format
         run: |
@@ -35,7 +45,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Dependencies
-        run: sudo apt-get install -y clang-tidy cmake ninja-build ccache
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang-tidy \
+            cmake \
+            ninja-build \
+            ccache \
+            build-essential \
+            libdrogon-dev \
+            libsimdjson-dev \
+            libsodium-dev
 
       - name: Cache CMake & ccache
         uses: actions/cache@v3
