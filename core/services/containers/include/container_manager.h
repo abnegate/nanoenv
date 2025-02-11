@@ -15,29 +15,29 @@ namespace nanoenv::containers {
             return instance;
         }
 
-        bool createEnvironment(
+        bool createContainer(
             const std::string &name,
             const std::string &image
         ) {
-            return static_cast<T *>(this)->createEnvironmentImpl(name, image);
+            return static_cast<T *>(this)->createContainerImpl(name, image);
         }
 
-        bool startEnvironment(
+        bool startContainer(
             const std::string &name
         ) {
-            return static_cast<T *>(this)->startEnvironmentImpl(name);
+            return static_cast<T *>(this)->startContainerImpl(name);
         }
 
-        bool stopEnvironment(
+        bool stopContainer(
             const std::string &name
         ) {
-            return static_cast<T *>(this)->stopEnvironmentImpl(name);
+            return static_cast<T *>(this)->stopContainerImpl(name);
         }
 
-        bool destroyEnvironment(
+        bool destroyContainer(
             const std::string &name
         ) {
-            return static_cast<T *>(this)->destroyEnvironmentImpl(name);
+            return static_cast<T *>(this)->destroyContainerImpl(name);
         }
 
     private:

@@ -1,3 +1,5 @@
+#pragma once
+
 #ifdef __APPLE__
 #include "lima_backend.h"
 using Backend = nanoenv::containers::LimaBackend;

@@ -3,7 +3,7 @@
 #include <iostream>
 
 namespace nanoenv::containers {
-    bool LimaBackend::createEnvironmentImpl(
+    bool LimaBackend::createContainerImpl(
         const std::string &name,
         const std::string &image
     ) {
@@ -12,21 +12,21 @@ namespace nanoenv::containers {
         return std::system(command.c_str()) == 0;
     }
 
-    bool LimaBackend::startEnvironmentImpl(
+    bool LimaBackend::startContainerImpl(
         const std::string &name
     ) {
         const std::string command = "limactl shell default lxc-start -n " + name;
         return std::system(command.c_str()) == 0;
     }
 
-    bool LimaBackend::stopEnvironmentImpl(
+    bool LimaBackend::stopContainerImpl(
         const std::string &name
     ) {
         const std::string command = "limactl shell default lxc-stop -n " + name;
         return std::system(command.c_str()) == 0;
     }
 
-    bool LimaBackend::destroyEnvironmentImpl(
+    bool LimaBackend::destroyContainerImpl(
         const std::string &name
     ) {
         const std::string command = "limactl shell default lxc-destroy -n " + name;
