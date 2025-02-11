@@ -8,6 +8,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(nanoenv_storage STATIC)
 
-target_sources(nanoenv_storage PRIVATE src/storage_manager.cpp)
+target_sources(nanoenv_storage PRIVATE
+    src/storage_manager.cpp)
 
-target_include_directories(nanoenv_storage PUBLIC include)
+target_include_directories(nanoenv_storage PUBLIC
+    include)

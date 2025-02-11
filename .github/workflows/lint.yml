@@ -110,7 +110,6 @@ jobs:
             exit 1
           fi
 
-
   upload-reports:
     name: Upload Clang Reports
     runs-on: ubuntu-latest

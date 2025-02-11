@@ -4,8 +4,6 @@ project(nanoenv_api_common CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Drogon CONFIG REQUIRED)
-
 add_library(nanoenv_api_common INTERFACE)
 
 target_include_directories(
@@ -15,5 +13,5 @@ target_include_directories(
 
 target_link_libraries(
     nanoenv_api_common INTERFACE
-    Drogon::Drogon
+    drogon
 )

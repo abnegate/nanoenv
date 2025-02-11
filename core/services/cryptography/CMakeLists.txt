@@ -4,9 +4,6 @@ project(nanoenv_cryptography)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBSODIUM REQUIRED libsodium)
-
 add_library(
     nanoenv_cryptography STATIC
     src/hashing.cpp
