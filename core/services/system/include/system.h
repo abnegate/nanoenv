@@ -6,6 +6,10 @@
 #include <stdexcept>
 #include <string>
 
+#if defined(__i386__) || defined(__x86_64__)
+#include <immintrin.h>
+#endif
+
 #if defined(__AVX2__)
 #define USE_AVX2
 #elif defined(__ARM_NEON)
@@ -14,10 +18,12 @@
 #define USE_SCALAR
 #endif
 
-namespace nanoenv::platform {
+namespace nanoenv::system {
     class System {
     public:
         static std::string getCurrentTime();
+
+        static std::string generateUUID();
 
         template <typename T>
         static T getVariable(
@@ -57,4 +63,4 @@ namespace nanoenv::platform {
             return result;
         }
     };
-} // namespace nanoenv::platform
+} // namespace nanoenv::system

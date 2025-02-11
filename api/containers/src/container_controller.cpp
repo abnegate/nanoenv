@@ -3,7 +3,6 @@
 #include "platform.h"
 #include "validator.h"
 #include <string>
-#include <thread>
 #include <drogon/drogon.h>
 
 using namespace nanoenv::containers;
@@ -25,7 +24,7 @@ namespace nanoenv::api::containers {
         const int memory = (*request)["memory"].asInt();
         const std::string network = (*request)["network"].asString();
 
-        if (!ContainerManager<Backend>::getInstance().createEnvironment(name, image)) {
+        if (!ContainerManager<Backend>::getInstance().createContainer(name, image)) {
             callback(error("Failed to create container.", drogon::k500InternalServerError));
             return;
         }
@@ -38,7 +37,7 @@ namespace nanoenv::api::containers {
         Callback &&callback,
         const std::string &containerId
     ) {
-        if (!ContainerManager<Backend>::getInstance().startEnvironment(containerId)) {
+        if (!ContainerManager<Backend>::getInstance().startContainer(containerId)) {
             callback(error("Failed to start container.", drogon::k500InternalServerError));
             return;
         }
@@ -51,7 +50,7 @@ namespace nanoenv::api::containers {
         Callback &&callback,
         const std::string &containerId
     ) {
-        if (!ContainerManager<Backend>::getInstance().stopEnvironment(containerId)) {
+        if (!ContainerManager<Backend>::getInstance().stopContainer(containerId)) {
             callback(error("Failed to stop container.", drogon::k500InternalServerError));
             return;
         }
@@ -64,20 +63,11 @@ namespace nanoenv::api::containers {
         Callback &&callback,
         const std::string &containerId
     ) {
-        if (!ContainerManager<Backend>::getInstance().destroyEnvironment(containerId)) {
+        if (!ContainerManager<Backend>::getInstance().destroyContainer(containerId)) {
             callback(error("Failed to destroy container.", drogon::k500InternalServerError));
             return;
         }
 
         callback(json(Json::Value{}));
     }
-}
-
-int main() {
-    drogon::app()
-        .addListener("0.0.0.0", 8080)
-        .setLogPath("./")
-        .setLogLevel(trantor::Logger::kInfo)
-        .setThreadNum(std::thread::hardware_concurrency())
-        .run();
-}
+} // namespace nanoenv::api::containers

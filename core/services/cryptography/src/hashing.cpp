@@ -18,6 +18,17 @@ namespace nanoenv::cryptography {
             throw std::runtime_error("Failed to hash API key");
         }
 
-        return {hashedKey.data()};
+        return {hashedKey.data(), crypto_pwhash_STRBYTES - 1};
+    }
+
+    bool Hashing::verifyArgon2(
+        const std::string &hash,
+        const std::string &input
+    ) {
+        return crypto_pwhash_str_verify(
+                   hash.c_str(),  // Hash to verify
+                   input.c_str(), // Input API key
+                   input.length() // Length of the key
+               ) == 0;
     }
 } // namespace nanoenv::cryptography

@@ -14,7 +14,7 @@ namespace nanoenv::database {
     ) const -> drogon::Task<> {
         co_await dbClient->execSqlCoro(
             "INSERT INTO api_keys (created_at, hashed_key, is_active) VALUES ($1, $2, TRUE)",
-            platform::System::getCurrentTime(),
+            system::System::getCurrentTime(),
             std::move(apiKey)
         );
 

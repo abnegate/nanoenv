@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.24)
 project(nanoenv CXX)
 
+option(BUILD_TESTS "Build unit tests" ON)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -flto -fno-rtti -fno-exceptions")
@@ -22,6 +24,7 @@ include(${CPM_DOWNLOAD_PATH})
 
 set(SODIUM_VERSION 1.0.19)
 set(DROGON_VERSION 1.9.9)
+set(GTEST_VERSION 1.16.0)
 
 find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -44,6 +47,11 @@ CPMAddPackage(
         "BUILD_EXAMPLES OFF"
         "BUILD_TESTING OFF"
         "BUILD_DROGON_SHARED OFF"
+)
+CPMAddPackage(
+    NAME gtest
+    GITHUB_REPOSITORY google/googletest
+    GIT_TAG v${GTEST_VERSION}
 )
 
 add_subdirectory(core/services/auth)
@@ -68,3 +76,16 @@ add_custom_target(nanoenv DEPENDS
     nanoenv_api_common
     nanoenv_api_containers
 )
+
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(core/services/auth/test)
+    add_subdirectory(core/services/containers/test)
+    add_subdirectory(core/services/cryptography/test)
+    add_subdirectory(core/services/database/test)
+    add_subdirectory(core/services/network/test)
+    add_subdirectory(core/services/storage/test)
+    add_subdirectory(core/services/system/test)
+
+    add_subdirectory(api/containers/test)
+endif()
