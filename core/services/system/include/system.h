@@ -21,10 +21,29 @@
 namespace nanoenv::system {
     class System {
     public:
+
+        /**
+         * @brief Gets the current system time in ISO 8601 format.
+         *
+         * @return The current system time in ISO 8601 format.
+         */
         static std::string getCurrentTime();
 
+        /**
+         * @brief Generates a random UUID.
+         *
+         * @return A random UUID.
+         */
         static std::string generateUUID();
 
+        /**
+         * @brief Gets the value of the specified environment variable.
+         *
+         * @tparam T The type of the environment variable.
+         * @param name The name of the environment variable.
+         * @param defaultValue The default value to return if the environment variable is not set.
+         * @return The value of the environment variable, or the default value if not set.
+         */
         template <typename T>
         static T getVariable(
             const std::string &name,

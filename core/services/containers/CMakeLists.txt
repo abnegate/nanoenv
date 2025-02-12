@@ -8,6 +8,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(nanoenv_containers STATIC)
 
+target_sources(
+    nanoenv_containers PRIVATE
+    src/oci_image.cpp
+)
+
 if (APPLE)
     target_sources(
         nanoenv_containers PRIVATE

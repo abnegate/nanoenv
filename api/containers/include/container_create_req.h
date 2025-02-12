@@ -8,6 +8,9 @@
 
 namespace nanoenv::api::containers {
 
+    /**
+     * @brief Represents a container creation request.
+     */
     struct ContainerCreateReq {
         std::string name;
         std::string image;
@@ -33,6 +36,12 @@ namespace nanoenv::api::containers {
             memory(memory),
             network(std::move(network)) {}
 
+        /**
+         * @brief Parses the given HTTP request into a container creation request.
+         *
+         * @param req The HTTP request to parse.
+         * @return The parsed container creation request, or an error message if parsing failed.
+         */
         static std::expected<ContainerCreateReq, std::string> fromRequest(const drogon::HttpRequest &req);
     };
 

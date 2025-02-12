@@ -35,14 +35,4 @@ namespace nanoenv::containers {
         const std::string command = "limactl shell default lxc-destroy -n " + name;
         return std::system(command.c_str()) == 0;
     }
-
-    void LimaBackend::extractOCIImageImpl(
-        const std::string &imagePath,
-        const std::string &containerPath
-    ) {
-        const std::string command = "limactl shell default lxc-create -n " + containerPath + " -t oci -- -d " + imagePath;
-        if (std::system(command.c_str()) != 0) {
-            throw std::runtime_error("Failed to extract OCI image");
-        }
-    }
 } // namespace nanoenv::containers

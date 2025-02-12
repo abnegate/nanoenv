@@ -1,8 +1,5 @@
 #pragma once
 
-#include "request_validator.h"
-#include "rule.h"
-#include "validator.h"
 #include <functional>
 #include <string>
 #include <drogon/HttpController.h>
@@ -14,6 +11,13 @@ namespace nanoenv::api {
     template <typename Derived, bool AutoCreation = true>
     class Controller : public drogon::HttpController<Derived, AutoCreation> {
     public:
+        /**
+         * @brief Sends a JSON response with the specified status code.
+         *
+         * @param result The JSON response to send.
+         * @param code The HTTP status code to send.
+         * @return The JSON response with the specified status code.
+         */
         static drogon::HttpResponsePtr json(
             const Json::Value &result,
             const drogon::HttpStatusCode code = drogon::k200OK
@@ -24,6 +28,13 @@ namespace nanoenv::api {
             return response;
         }
 
+        /**
+         * @brief Sends an error response with the specified status code.
+         *
+         * @param message The error message to send.
+         * @param code The HTTP status code to send.
+         * @return The error response with the specified status code.
+         */
         static drogon::HttpResponsePtr error(
             const std::string &message,
             const drogon::HttpStatusCode code
@@ -33,17 +44,6 @@ namespace nanoenv::api {
             auto response = drogon::HttpResponse::newHttpJsonResponse(error);
             response->setStatusCode(code);
             return response;
-        }
-
-        template <size_t N>
-        static std::optional<std::string> validate(
-            const drogon::HttpRequestPtr &req,
-            const std::array<AnyRule, N> &rules
-        ) {
-            if (const auto message = RequestValidator<N>::validate(req, rules)) {
-                return message;
-            }
-            return std::nullopt;
         }
 
     protected:

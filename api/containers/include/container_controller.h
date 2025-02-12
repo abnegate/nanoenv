@@ -20,14 +20,47 @@ namespace nanoenv::api::containers {
         ADD_METHOD_TO(ContainerController::health, "/containers/health", Get);
         METHOD_LIST_END
 
+        /**
+         * @brief Creates a new container from the given request.
+         *
+         * @param req The HTTP request containing the container configuration.
+         * @param callback The callback to invoke upon completion.
+         */
         void create(const HttpRequestPtr &req, Callback &&callback) const;
 
+        /**
+         * @brief Starts the container with the specified ID.
+         *
+         * @param req The HTTP request containing the container ID.
+         * @param callback The callback to invoke upon completion.
+         * @param containerId The ID of the container to start.
+         */
         void start(const HttpRequestPtr &req, Callback &&callback, const std::string &containerId);
 
+        /**
+         * @brief Stops the container with the specified ID.
+         *
+         * @param req The HTTP request containing the container ID.
+         * @param callback The callback to invoke upon completion.
+         * @param containerId The ID of the container to stop.
+         */
         void stop(const HttpRequestPtr &req, Callback &&callback, const std::string &containerId);
 
+        /**
+         * @brief Destroys the container with the specified ID.
+         *
+         * @param req The HTTP request containing the container ID.
+         * @param callback The callback to invoke upon completion.
+         * @param containerId The ID of the container to destroy.
+         */
         void destroy(const HttpRequestPtr &req, Callback &&callback, const std::string &containerId);
 
+        /**
+         * @brief Checks the health of the container service.
+         *
+         * @param req The HTTP request to check the health of the service.
+         * @param callback The callback to invoke upon completion.
+         */
         static void health(const HttpRequestPtr &req, Callback &&callback);
 
     private:
