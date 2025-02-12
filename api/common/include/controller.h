@@ -7,7 +7,6 @@
 #include <string>
 #include <drogon/HttpController.h>
 #include <drogon/HttpResponse.h>
-#include <json/json.h>
 
 using Callback = std::function<void(const drogon::HttpResponsePtr &)>;
 

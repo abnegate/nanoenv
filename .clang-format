@@ -20,6 +20,7 @@ PackConstructorInitializers: Never
 BreakConstructorInitializers: AfterColon
 BreakFunctionDefinitionParameters: true
 BreakBeforeBraces: Custom
+BreakBeforeTernaryOperators: true
 BreakAfterReturnType: None
 BreakArrays: true
 BreakTemplateDeclarations: Yes

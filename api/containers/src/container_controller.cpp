@@ -1,7 +1,7 @@
 #include "container_controller.h"
+#include "container_create_req.h"
 #include "container_manager.h"
 #include "platform.h"
-#include "validator.h"
 #include <string>
 #include <drogon/drogon.h>
 
@@ -9,36 +9,32 @@ using namespace nanoenv::containers;
 
 namespace nanoenv::api::containers {
     void ContainerController::create(
-        const drogon::HttpRequestPtr &req,
+        const HttpRequestPtr &req,
         Callback &&callback
-    ) {
-        if (const auto message = validate(req, getCreateRules())) {
-            callback(error(*message, drogon::k400BadRequest));
+    ) const {
+        const auto request = ContainerCreateReq::fromRequest(*req);
+        if (!request) {
+            callback(error(request.error(), k400BadRequest));
             return;
         }
 
-        const auto request = req->getJsonObject();
-        const std::string name = (*request)["name"].asString();
-        const std::string image = (*request)["image"].asString();
-        const int cpu = (*request)["cpu"].asInt();
-        const int memory = (*request)["memory"].asInt();
-        const std::string network = (*request)["network"].asString();
+        const auto [name, image, cpu, memory, network] = *request;
 
-        if (!ContainerManager<Backend>::getInstance().createContainer(name, image)) {
-            callback(error("Failed to create container.", drogon::k500InternalServerError));
+        if (!containerManager->createContainer(name, image, cpu, memory, network)) {
+            callback(error("Failed to create container.", k500InternalServerError));
             return;
         }
 
-        callback(json(*request));
+        callback(json(Json::Value{}));
     }
 
     void ContainerController::start(
-        const drogon::HttpRequestPtr &req,
+        const HttpRequestPtr &req,
         Callback &&callback,
         const std::string &containerId
     ) {
         if (!ContainerManager<Backend>::getInstance().startContainer(containerId)) {
-            callback(error("Failed to start container.", drogon::k500InternalServerError));
+            callback(error("Failed to start container.", k500InternalServerError));
             return;
         }
 
@@ -46,12 +42,12 @@ namespace nanoenv::api::containers {
     }
 
     void ContainerController::stop(
-        const drogon::HttpRequestPtr &req,
+        const HttpRequestPtr &req,
         Callback &&callback,
         const std::string &containerId
     ) {
         if (!ContainerManager<Backend>::getInstance().stopContainer(containerId)) {
-            callback(error("Failed to stop container.", drogon::k500InternalServerError));
+            callback(error("Failed to stop container.", k500InternalServerError));
             return;
         }
 
@@ -59,15 +55,26 @@ namespace nanoenv::api::containers {
     }
 
     void ContainerController::destroy(
-        const drogon::HttpRequestPtr &req,
+        const HttpRequestPtr &req,
         Callback &&callback,
         const std::string &containerId
     ) {
         if (!ContainerManager<Backend>::getInstance().destroyContainer(containerId)) {
-            callback(error("Failed to destroy container.", drogon::k500InternalServerError));
+            callback(error("Failed to destroy container.", k500InternalServerError));
             return;
         }
 
         callback(json(Json::Value{}));
     }
+
+    void ContainerController::health(
+        const HttpRequestPtr &req,
+        Callback &&callback
+    ) {
+        Json::Value response;
+        response["status"] = "ok";
+
+        callback(json(response));
+    }
+
 } // namespace nanoenv::api::containers

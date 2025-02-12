@@ -1,3 +1,4 @@
+#include "container_controller.h"
 #include "system.h"
 #include <chrono>
 #include <thread>
@@ -14,7 +15,14 @@ protected:
     static void SetUpTestSuite() {
         client = HttpClient::newHttpClient("http://0.0.0.0:18080");
 
-        std::thread([] { app().addListener("0.0.0.0", 18080).run(); }).detach();
+        const auto controller = std::make_shared<nanoenv::api::containers::ContainerController>();
+
+        std::thread([&controller] {
+            app()
+                .addListener("0.0.0.0", 18080)
+                .registerController(controller)
+                .run();
+        }).detach();
 
         waitForServerReady();
     }
@@ -23,8 +31,9 @@ protected:
         app().quit();
     }
 
-
-    static std::pair<ReqResult, HttpResponsePtr> sendRequestSync(const HttpRequestPtr &req) {
+    static std::pair<ReqResult, HttpResponsePtr> sendRequestSync(
+        const HttpRequestPtr &req
+    ) {
         std::promise<std::pair<ReqResult, HttpResponsePtr>> promise;
         auto future = promise.get_future();
 
@@ -53,6 +62,8 @@ private:
 
             std::this_thread::sleep_for(retryInterval);
         }
+
+        app().quit();
 
         throw std::runtime_error("Server failed to start within the expected time.");
     }

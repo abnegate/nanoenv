@@ -1,34 +1,76 @@
 #include "lxc_backend.h"
+#include "system.h"
+#include <fstream>
 #include <iostream>
-#include <memory>
+#include <sys/stat.h>
 
 namespace nanoenv::containers {
-bool LXCBackend::createEnvironmentImpl(const std::string& name, const std::string& image) {
-    auto container = std::unique_ptr<lxc_container, decltype(&lxc_container_free)>(
-        lxc_container_new(name.c_str(), nullptr), lxc_container_free
-    );
-    return container && container->createl(container.get(), "download", nullptr, nullptr,
-                                           LXC_CREATE_QUIET, "-d", image.c_str(), "-r", "22.04", "-a", "amd64", nullptr);
-}
+    bool LXCBackend::createContainerImpl(
+        const std::string &name,
+        const std::string &image,
+        int cpu,
+        int memory,
+        const std::string &network
+    ) {
+        // Validate that the image exists
+        if (!isValidOciImage(imagePath)) {
+            throw std::runtime_error(std::format("Image '{}' not found or invalid.", imagePath));
+        }
 
-bool LXCBackend::startEnvironmentImpl(const std::string& name) {
-    auto container = std::unique_ptr<lxc_container, decltype(&lxc_container_free)>(
-        lxc_container_new(name.c_str(), nullptr), lxc_container_free
-    );
-    return container && container->start(container.get(), 0, nullptr);
-}
+        // Generate a unique container ID
+        const std::string containerId = system::System::generateUUID();
 
-bool LXCBackend::stopEnvironmentImpl(const std::string& name) {
-    auto container = std::unique_ptr<lxc_container, decltype(&lxc_container_free)>(
-        lxc_container_new(name.c_str(), nullptr), lxc_container_free
-    );
-    return container && container->shutdown(container.get(), 30);
-}
+        // Define container root path
+        const std::string containerPath = std::format("{}/{}", containerBasePath, containerId);
 
-bool LXCBackend::destroyEnvironmentImpl(const std::string& name) {
-    auto container = std::unique_ptr<lxc_container, decltype(&lxc_container_free)>(
-        lxc_container_new(name.c_str(), nullptr), lxc_container_free
-    );
-    return container && container->destroy(container.get());
-}
-}
+        // Create container storage directory
+        if (mkdir(containerPath.c_str(), 0755) != 0) {
+            throw std::runtime_error(std::format("Failed to create container directory: {}", containerPath));
+        }
+
+        // Extract OCI Image
+        extractOCIImageImpl(imagePath, containerPath);
+
+        // Generate LXC Configuration
+        const std::string configPath = std::format("{}/config", containerPath);
+        std::ofstream configFile(configPath);
+        if (!configFile) {
+            throw std::runtime_error(std::format("Failed to create container config file: {}", configPath));
+        }
+
+        configFile << std::format(
+            R"(
+            lxc.uts.name = {}
+            lxc.rootfs.path = {}
+            lxc.network.type = veth
+            lxc.network.link = br0
+            lxc.network.flags = up
+            lxc.start.auto = 1
+            lxc.start.delay = 0
+            )",
+            name,
+            containerPath
+        );
+
+        configFile.close();
+
+        // Start the container using LXC
+        if (!startContainer(containerId)) {
+            throw std::runtime_error(std::format("Failed to start container '{}'", containerId));
+        }
+
+        return containerId; // Return the generated container ID
+    }
+
+    bool LXCBackend::startContainerImpl(
+        const std::string &name
+    ) {}
+
+    bool LXCBackend::stopContainerImpl(
+        const std::string &name
+    ) {}
+
+    bool LXCBackend::destroyContainerImpl(
+        const std::string &name
+    ) {}
+} // namespace nanoenv::containers

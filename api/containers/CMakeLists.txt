@@ -7,6 +7,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -flto -fno-rtti -fno-exceptions")
 
 add_library(
     nanoenv_api_containers_lib STATIC
+    src/container_create_req.cpp
     src/container_controller.cpp
 )
 
@@ -21,6 +22,7 @@ target_link_libraries(
     nanoenv_containers
     nanoenv_system
     drogon
+    simdjson
 )
 
 add_executable(
