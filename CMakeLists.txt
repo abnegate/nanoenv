@@ -25,6 +25,8 @@ include(${CPM_DOWNLOAD_PATH})
 set(SODIUM_VERSION 1.0.19)
 set(DROGON_VERSION 1.9.9)
 set(ARCHIVE_VERSION 3.7.7)
+set(PSL_VERSION 0.21.5)
+set(CURL_VERSION 8_12_0)
 set(GTEST_VERSION 1.16.0)
 
 find_package(ZLIB REQUIRED)
@@ -50,6 +52,16 @@ CPMAddPackage(
     NAME libarchive
     GITHUB_REPOSITORY libarchive/libarchive
     GIT_TAG v${ARCHIVE_VERSION}
+)
+CPMAddPackage(
+    NAME libpsl
+    GITHUB_REPOSITORY rockdaboot/libpsl
+    GIT_TAG ${PSL_VERSION}
+)
+CPMAddPackage(
+    NAME curl
+    GITHUB_REPOSITORY curl/curl
+    GIT_TAG curl-${CURL_VERSION}
 )
 
 add_subdirectory(core/services/auth)
