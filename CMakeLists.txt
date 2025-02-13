@@ -71,6 +71,7 @@ add_subdirectory(core/services/database)
 add_subdirectory(core/services/network)
 add_subdirectory(core/services/storage)
 add_subdirectory(core/services/system)
+add_subdirectory(core/services/threads)
 
 add_subdirectory(api/common)
 add_subdirectory(api/containers)
