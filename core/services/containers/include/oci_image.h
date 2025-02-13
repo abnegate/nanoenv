@@ -1,43 +1,33 @@
 #pragma once
 
+#include "thread_pool.h"
+#include <expected>
 #include <string>
-#include <unordered_set>
+#include <vector>
 
 namespace nanoenv::containers {
     class OCIImage {
     public:
-        OCIImage() = default;
-        ~OCIImage() = default;
-
-        /**
-         * @brief Validates whether the given image string follows the OCI image format.
-         *
-         * The function checks for valid OCI image naming conventions, including:
-         * - Repository names (e.g., `repo/image`)
-         * - Tags (e.g., `repo/image:tag`)
-         * - Digest hashes (e.g., `repo/image@sha256:hash`)
-         *
-         * @param image The OCI image string to validate.
-         * @return True if the image follows a valid OCI format, false otherwise.
-         *
-         * @note This function does not perform network checks—only string validation.
-         * @warning The function does not check if the image actually exists.
-         */
-        bool isValidImage(const std::string &image);
-
-        /**
-         * @brief Extracts the given OCI image to the specified container path.
-         *
-         * @param imagePath The OCI image to extract.
-         * @param containerPath The path to extract the image to.
-         * @return True if the image was successfully extracted, false otherwise.
-         */
-        bool extract(const std::string &imagePath, const std::string &containerPath);
+        static std::expected<bool, std::string> processImage(
+            const std::string &registry,
+            const std::string &image,
+            const std::string &outputDir
+        ) noexcept;
 
     private:
-        static constexpr auto OCI_CACHE_DIR = "/var/lib/nanoenv/oci_cache/";
-        std::unordered_set<std::string> localImageCache;
+        static threads::ThreadPool &getThreadPool();
 
-        static bool isValidImageFormat(const std::string &image);
+        static std::expected<bool, std::string> isValidImageFormat(const std::string &image) noexcept;
+
+        static std::expected<std::string, std::string> downloadManifest(const std::string &registry, const std::string &image) noexcept;
+
+        static std::expected<std::vector<std::string>, std::string> parseLayerDigests(const std::string &manifest) noexcept;
+
+        static std::expected<bool, std::string> OCIImage::downloadLayer(
+            const std::string &registry,
+            const std::string &image,
+            const std::string &digest,
+            const std::string &outputDir
+        ) noexcept;
     };
 } // namespace nanoenv::containers

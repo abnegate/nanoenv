@@ -34,5 +34,6 @@ target_include_directories(
 target_link_libraries(
     nanoenv_containers PUBLIC
     nanoenv_system
+    nanoenv_threads
     libarchive
 )
