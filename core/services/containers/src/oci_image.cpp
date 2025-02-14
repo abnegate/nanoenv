@@ -45,11 +45,11 @@ namespace nanoenv::containers {
             return std::unexpected(layerDigestsRes.error());
         }
 
-        threads::ThreadPool &pool = getThreadPool();
+        threads::ThreadPool &pool = getDownloadThreadPool();
         std::vector<std::future<std::expected<bool, std::string>>> workers;
         for (const auto &digest : *layerDigestsRes) {
             workers.push_back(pool.enqueue([registry, image, outputDir, digest]() -> std::expected<bool, std::string> {
-                return downloadLayer(registry, image, digest, outputDir);
+                return downloadAndExtractLayer(registry, image, digest, outputDir);
             }));
         }
 
@@ -360,10 +360,16 @@ namespace nanoenv::containers {
         return true;
     }
 
-    // A dedicated thread pool for all tasks; here we use twice the number of CPU cores.
-    threads::ThreadPool &OCIImage::getThreadPool() {
-        static threads::ThreadPool threadPool(std::thread::hardware_concurrency() * 2);
-        return threadPool;
+    threads::ThreadPool &OCIImage::getDownloadThreadPool() {
+        static threads::ThreadPool pool(std::thread::hardware_concurrency() * 2);
+        return pool;
+    }
+
+    threads::ThreadPool &OCIImage::getExtractThreadPool() {
+        static threads::ThreadPool pool(std::thread::hardware_concurrency());
+        return pool;
+    }
+
     }
 
     // Basic image format validation.

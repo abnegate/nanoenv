@@ -18,11 +18,11 @@ target_include_directories(
 
 target_link_libraries(
     nanoenv_api_containers_lib PUBLIC
-    nanoenv_api_common
     nanoenv_containers
+    nanoenv_api_common
     nanoenv_system
-    drogon
     simdjson
+    drogon
 )
 
 add_executable(

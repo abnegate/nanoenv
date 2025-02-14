@@ -12,15 +12,10 @@ add_library(
 target_include_directories(
     nanoenv_cryptography PUBLIC
     include
-    ${LIBSODIUM_INCLUDE_DIRS}
+    ${SODIUM_INCLUDE_DIRS}
 )
 
 target_link_libraries(
     nanoenv_cryptography PRIVATE
-    ${LIBSODIUM_LIBRARIES}
-)
-
-target_compile_options(
-    nanoenv_cryptography PRIVATE
-    ${LIBSODIUM_CFLAGS_OTHER}
+    ${SODIUM_LIBRARIES}
 )

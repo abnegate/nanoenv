@@ -19,24 +19,25 @@ namespace nanoenv::threads {
                 workers.emplace_back([this] {
                     while (true) {
                         std::function<void()> task;
-
                         {
-                            std::unique_lock lock(this->queueMutex);
-                            this->condition.wait(lock, [this] { return this->stop || !this->tasks.empty(); });
+                            std::unique_lock lock(queueMutex);
 
-                            if (this->stop && this->tasks.empty()) {
+                            condition.wait(lock, [this] {
+                                return stop.load(std::memory_order_acquire) || !tasks.empty();
+                            });
+
+                            if (stop.load(std::memory_order_acquire) && tasks.empty()) {
                                 return;
                             }
 
-                            task = std::move(this->tasks.front());
-                            this->tasks.pop();
+                            task = std::move(tasks.front());
+                            tasks.pop();
                         }
 
                         try {
                             task();
                         } catch (const std::exception &e) {
                             // Log the exception or handle it appropriately.
-                            // For now, we just catch it to prevent the thread from terminating.
                         } catch (...) {
                             // Catch any non-standard exceptions.
                         }
@@ -48,8 +49,9 @@ namespace nanoenv::threads {
         ~ThreadPool() {
             {
                 std::unique_lock lock(queueMutex);
-                stop = true;
+                stop.store(true, std::memory_order_release);
             }
+
             condition.notify_all();
 
             for (std::thread &worker : workers) {
@@ -64,18 +66,18 @@ namespace nanoenv::threads {
             F &&f,
             Args &&...args
         ) {
-            using return_type = std::invoke_result_t<F, Args...>;
+            using ReturnType = std::invoke_result_t<F, Args...>;
 
-            auto task = std::make_shared<std::packaged_task<return_type()>>(
+            auto task = std::make_shared<std::packaged_task<ReturnType()>>(
                 std::bind(std::forward<F>(f), std::forward<Args>(args)...)
             );
 
-            std::future<return_type> result = task->get_future();
+            std::future<ReturnType> result = task->get_future();
             {
                 std::unique_lock lock(queueMutex);
 
-                if (stop) {
-                    throw std::runtime_error("ThreadPool has been stopped.");
+                if (stop.load(std::memory_order_acquire)) {
+                    throw std::runtime_error("Thread pool has been stopped.");
                 }
 
                 tasks.emplace([task] { (*task)(); });
@@ -90,6 +92,6 @@ namespace nanoenv::threads {
         std::queue<std::function<void()>> tasks;
         std::mutex queueMutex;
         std::condition_variable condition;
-        bool stop = false;
+        std::atomic<bool> stop{false};
     };
 } // namespace nanoenv::threads

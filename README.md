@@ -99,7 +99,7 @@ sudo apt install cmake ninja-build lxc liblxc-dev libdrogon-dev
 For macOS:
 
 ```sh
-brew install cmake ninja lima drogon
+brew install cmake ninja lima zlib jsoncpp simdjson openssl pigz drogon uuid brotli zstd libpsl
 ```
 
 #### **2️⃣ Clone the Repository & Build**

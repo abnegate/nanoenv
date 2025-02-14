@@ -36,4 +36,5 @@ target_link_libraries(
     nanoenv_system
     nanoenv_threads
     libarchive
+    simdjson
 )
